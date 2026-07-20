@@ -1,0 +1,16 @@
+{
+  "name": "qr-code-rotulos",
+  "version": "1.0.0",
+  "description": "Plataforma de cadastro de produtos alimenticios com pagina publica acessivel (WCAG 2.1 AAA) via QR Code, com leitura por voz (Web Speech API).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.19.2",
+    "qrcode": "^1.5.3",
+    "uuid": "^9.0.1"
+  }
+}

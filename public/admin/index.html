@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Cadastro de Produtos - Rotulagem Acessivel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <a href="#conteudo-principal" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-yellow-300 focus:px-4 focus:py-2 focus:rounded">
+    Pular para o conteudo principal
+  </a>
+
+  <header class="bg-emerald-800 text-white">
+    <div class="max-w-4xl mx-auto px-4 py-5">
+      <h1 class="text-2xl md:text-3xl font-bold">Cadastro de Produto Alimenticio</h1>
+      <p class="text-emerald-100 mt-1">Preencha os dados abaixo e gere o QR Code com a rotulagem acessivel do produto.</p>
+    </div>
+  </header>
+
+  <main id="conteudo-principal" class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+
+    <div id="mensagem" role="status" aria-live="polite" class="hidden rounded-lg p-4 font-medium"></div>
+
+    <form id="form-produto" class="space-y-8" novalidate>
+
+      <!-- BLOCO: Identificacao -->
+      <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
+        <legend class="text-lg font-bold px-2 text-emerald-800">1. Identificacao do produto</legend>
+        <div class="grid md:grid-cols-2 gap-4 mt-2">
+          <div>
+            <label for="nome" class="block font-medium mb-1">Nome do produto *</label>
+            <input id="nome" name="nome" type="text" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="marca" class="block font-medium mb-1">Marca *</label>
+            <input id="marca" name="marca" type="text" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO: Porcao -->
+      <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
+        <legend class="text-lg font-bold px-2 text-emerald-800">2. Porcao e rendimento</legend>
+        <div class="grid md:grid-cols-3 gap-4 mt-2">
+          <div>
+            <label for="porcao_qtd" class="block font-medium mb-1">Tamanho da porcao (g/ml)</label>
+            <input id="porcao_qtd" name="porcao_qtd" type="text" placeholder="Ex: 30 g"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="porcao_medida_caseira" class="block font-medium mb-1">Medida caseira</label>
+            <input id="porcao_medida_caseira" name="porcao_medida_caseira" type="text" placeholder="Ex: 2 colheres de sopa"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="porcoes_embalagem" class="block font-medium mb-1">Porcoes por embalagem</label>
+            <input id="porcoes_embalagem" name="porcoes_embalagem" type="text" placeholder="Ex: 8"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO: Lupas ANVISA -->
+      <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
+        <legend class="text-lg font-bold px-2 text-emerald-800">3. Lupas de alerta da Anvisa</legend>
+        <p class="text-sm text-slate-600 mt-1 mb-3">Marque somente os alertas que se aplicam a este produto.</p>
+        <div class="grid md:grid-cols-3 gap-4">
+          <label class="flex items-center gap-3 border border-slate-300 rounded-lg px-3 py-3 cursor-pointer">
+            <input type="checkbox" id="alerta_acucar" name="alerta_acucar" class="w-5 h-5">
+            <span>Alto em Acucar Adicionado</span>
+          </label>
+          <label class="flex items-center gap-3 border border-slate-300 rounded-lg px-3 py-3 cursor-pointer">
+            <input type="checkbox" id="alerta_gordura_saturada" name="alerta_gordura_saturada" class="w-5 h-5">
+            <span>Alto em Gordura Saturada</span>
+          </label>
+          <label class="flex items-center gap-3 border border-slate-300 rounded-lg px-3 py-3 cursor-pointer">
+            <input type="checkbox" id="alerta_sodio" name="alerta_sodio" class="w-5 h-5">
+            <span>Alto em Sodio</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO: Tabela nutricional -->
+      <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
+        <legend class="text-lg font-bold px-2 text-emerald-800">4. Tabela nutricional (por porcao)</legend>
+        <div class="grid md:grid-cols-2 gap-4 mt-2">
+          <div>
+            <label for="valor_energetico_kcal" class="block font-medium mb-1">Valor energetico (kcal)</label>
+            <input id="valor_energetico_kcal" name="valor_energetico_kcal" type="text"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="valor_energetico_kj" class="block font-medium mb-1">Valor energetico (kJ)</label>
+            <input id="valor_energetico_kj" name="valor_energetico_kj" type="text"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left border-collapse">
+            <caption class="text-sm text-slate-600 mb-2 text-left">Nutriente, quantidade e %VD (valor diario)</caption>
+            <thead>
+              <tr class="border-b border-slate-300">
+                <th scope="col" class="py-2 pr-2">Nutriente</th>
+                <th scope="col" class="py-2 pr-2">Quantidade</th>
+                <th scope="col" class="py-2">%VD</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-nutrientes" class="align-top"></tbody>
+          </table>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO: Ingredientes -->
+      <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
+        <legend class="text-lg font-bold px-2 text-emerald-800">5. Ingredientes e alergenicos</legend>
+        <div class="space-y-4 mt-2">
+          <div>
+            <label for="ingredientes" class="block font-medium mb-1">Lista de ingredientes (ordem decrescente)</label>
+            <textarea id="ingredientes" name="ingredientes" rows="3" placeholder="Ex: acucar, farinha de trigo, oleo vegetal, sal, ..."
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label for="alergenicos" class="block font-medium mb-1">Alergenicos</label>
+            <input id="alergenicos" name="alergenicos" type="text" placeholder="Ex: gluten, leite, soja"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO: Textos narrativos -->
+      <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
+        <legend class="text-lg font-bold px-2 text-emerald-800">6. Textos explicativos (audio da pagina publica)</legend>
+        <div class="flex items-center justify-between mt-1 mb-3 flex-wrap gap-2">
+          <p class="text-sm text-slate-600">Gere sugestoes automaticas em linguagem simples e edite se necessario.</p>
+          <button type="button" id="btn-gerar-textos"
+            class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-4 py-2 rounded-lg focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700">
+            Gerar textos automaticos
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="texto_bloco1" class="block font-medium mb-1">Bloco 1 - Resumo e alertas frontais</label>
+            <textarea id="texto_bloco1" name="texto_bloco1" rows="3"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label for="texto_bloco2" class="block font-medium mb-1">Bloco 2 - Porcao e rendimento</label>
+            <textarea id="texto_bloco2" name="texto_bloco2" rows="3"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label for="texto_bloco3" class="block font-medium mb-1">Bloco 3 - Tabela nutricional</label>
+            <textarea id="texto_bloco3" name="texto_bloco3" rows="4"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label for="texto_bloco4" class="block font-medium mb-1">Bloco 4 - Ingredientes e alergenicos</label>
+            <textarea id="texto_bloco4" name="texto_bloco4" rows="3"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="flex justify-end">
+        <button type="submit"
+          class="bg-emerald-800 hover:bg-emerald-900 text-white text-lg font-bold px-6 py-3 rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-emerald-800">
+          Salvar produto
+        </button>
+      </div>
+    </form>
+
+    <!-- Resultado / QR Code -->
+    <section id="secao-resultado" class="hidden bg-white rounded-xl shadow p-6 border border-emerald-300" aria-labelledby="titulo-resultado">
+      <h2 id="titulo-resultado" class="text-xl font-bold text-emerald-800 mb-3">Produto cadastrado com sucesso</h2>
+      <p class="mb-1">Link publico: <a id="link-publico" class="text-emerald-700 underline break-all" target="_blank" rel="noopener"></a></p>
+      <div class="flex flex-col items-center gap-4 mt-4">
+        <img id="img-qrcode" alt="QR Code do produto cadastrado" class="w-64 h-64 border border-slate-300 rounded-lg">
+        <a id="link-download" download="qrcode-produto.png"
+          class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2 rounded-lg">
+          Baixar QR Code (PNG)
+        </a>
+      </div>
+    </section>
+
+    <!-- Lista de produtos cadastrados -->
+    <section class="bg-white rounded-xl shadow p-6 border border-slate-200" aria-labelledby="titulo-lista">
+      <h2 id="titulo-lista" class="text-xl font-bold text-emerald-800 mb-3">Produtos cadastrados</h2>
+      <ul id="lista-produtos" class="divide-y divide-slate-200"></ul>
+    </section>
+
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
