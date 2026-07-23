@@ -26,6 +26,7 @@ const pronto = db.execute(`
     id TEXT PRIMARY KEY,
     nome TEXT NOT NULL,
     marca TEXT NOT NULL,
+    data_validade TEXT,
 
     porcao_qtd TEXT,
     porcao_medida_caseira TEXT,
@@ -65,4 +66,11 @@ const pronto = db.execute(`
   );
 `);
 
-module.exports = { db, pronto };
+// CREATE TABLE IF NOT EXISTS nao adiciona colunas a bancos ja criados antes
+// dela existir, entao migramos manualmente quem ja tinha a tabela sem a
+// coluna nova (ignora o erro se a coluna ja existir).
+const prontoComMigracoes = pronto.then(() =>
+  db.execute('ALTER TABLE produtos ADD COLUMN data_validade TEXT').catch(() => {})
+);
+
+module.exports = { db, pronto: prontoComMigracoes };

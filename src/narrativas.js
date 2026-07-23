@@ -13,23 +13,31 @@ function numeroOuTraco(v) {
   return v;
 }
 
-function gerarBloco1({ nome, marca, alerta_acucar, alerta_gordura_saturada, alerta_sodio }) {
+function formatarDataFalada(dataIso) {
+  const partes = String(dataIso).split('-');
+  if (partes.length !== 3) return dataIso;
+  const [ano, mes, dia] = partes;
+  return `${dia}/${mes}/${ano}`;
+}
+
+function gerarBloco1({ nome, marca, data_validade, alerta_acucar, alerta_gordura_saturada, alerta_sodio }) {
   const alertas = [];
   if (alerta_acucar) alertas.push('alto teor de açúcar adicionado');
   if (alerta_gordura_saturada) alertas.push('alto teor de gordura saturada');
   if (alerta_sodio) alertas.push('alto teor de sódio');
 
   const cabecalho = `Você está ouvindo as informações do produto ${nome || 'sem nome informado'}, da marca ${marca || 'não informada'}.`;
+  const validade = data_validade ? ` Data de validade: ${formatarDataFalada(data_validade)}.` : '';
 
   if (alertas.length === 0) {
-    return `${cabecalho} Este produto não apresenta selos de alerta da Anvisa. Isso significa que ele não tem quantidades altas de açúcar adicionado, gordura saturada ou sódio, segundo a rotulagem frontal.`;
+    return `${cabecalho}${validade} Este produto não apresenta selos de alerta da Anvisa. Isso significa que ele não tem quantidades altas de açúcar adicionado, gordura saturada ou sódio, segundo a rotulagem frontal.`;
   }
 
   const listaAlertas = alertas.length === 1
     ? alertas[0]
     : alertas.slice(0, -1).join(', ') + ' e ' + alertas[alertas.length - 1];
 
-  return `${cabecalho} Atenção: este produto possui selo de alerta da Anvisa por conter ${listaAlertas}. Recomenda-se atenção ao consumo frequente.`;
+  return `${cabecalho}${validade} Atenção: este produto possui selo de alerta da Anvisa por conter ${listaAlertas}. Recomenda-se atenção ao consumo frequente.`;
 }
 
 function gerarBloco2({ porcao_qtd, porcao_medida_caseira, porcoes_embalagem }) {

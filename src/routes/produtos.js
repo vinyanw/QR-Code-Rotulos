@@ -27,6 +27,7 @@ function normalizarPayload(body) {
   return {
     nome: (body.nome || '').trim(),
     marca: (body.marca || '').trim(),
+    data_validade: (body.data_validade || '').trim(),
 
     porcao_qtd: (body.porcao_qtd || '').trim(),
     porcao_medida_caseira: (body.porcao_medida_caseira || '').trim(),
@@ -80,7 +81,7 @@ router.post('/produtos', async (req, res) => {
     await db.execute({
       sql: `
         INSERT INTO produtos (
-          id, nome, marca,
+          id, nome, marca, data_validade,
           porcao_qtd, porcao_medida_caseira, porcoes_embalagem,
           alerta_acucar, alerta_gordura_saturada, alerta_sodio,
           valor_energetico_kcal, valor_energetico_kj,
@@ -89,7 +90,7 @@ router.post('/produtos', async (req, res) => {
           ingredientes, alergenicos,
           texto_bloco1, texto_bloco2, texto_bloco3, texto_bloco4
         ) VALUES (
-          @id, @nome, @marca,
+          @id, @nome, @marca, @data_validade,
           @porcao_qtd, @porcao_medida_caseira, @porcoes_embalagem,
           @alerta_acucar, @alerta_gordura_saturada, @alerta_sodio,
           @valor_energetico_kcal, @valor_energetico_kj,
@@ -134,7 +135,7 @@ router.put('/produtos/:id', async (req, res) => {
     await db.execute({
       sql: `
         UPDATE produtos SET
-          nome = @nome, marca = @marca,
+          nome = @nome, marca = @marca, data_validade = @data_validade,
           porcao_qtd = @porcao_qtd, porcao_medida_caseira = @porcao_medida_caseira, porcoes_embalagem = @porcoes_embalagem,
           alerta_acucar = @alerta_acucar, alerta_gordura_saturada = @alerta_gordura_saturada, alerta_sodio = @alerta_sodio,
           valor_energetico_kcal = @valor_energetico_kcal, valor_energetico_kj = @valor_energetico_kj,

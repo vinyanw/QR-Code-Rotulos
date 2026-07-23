@@ -54,12 +54,21 @@
     return `<li>${rotulo}: <strong>${valor}</strong>${vd ? ` (${vd}% do valor diario)` : ''}</li>`;
   }
 
+  function formatarData(dataIso) {
+    const partes = String(dataIso).split('-');
+    if (partes.length !== 3) return dataIso;
+    const [ano, mes, dia] = partes;
+    return `${dia}/${mes}/${ano}`;
+  }
+
   function montarBlocos(produto) {
     const blocos = [
       {
         titulo: 'Bloco 1 de 4: Resumo e alertas',
         texto: produto.texto_bloco1,
-        detalhesHtml: '',
+        detalhesHtml: produto.data_validade
+          ? `<ul class="list-disc pl-6 space-y-1"><li>Validade: <strong>${formatarData(produto.data_validade)}</strong></li></ul>`
+          : '',
       },
       {
         titulo: 'Bloco 2 de 4: Porcao e rendimento',
