@@ -138,11 +138,33 @@
     const elDetalhesBloco = document.getElementById('detalhes-bloco-atual');
     const elBlocoConteudo = document.getElementById('bloco-conteudo');
     const btnTocarPausar = document.getElementById('btn-tocar-pausar');
+    const btnRepetir = document.getElementById('btn-repetir');
+    const elAvisoAudio = document.getElementById('aviso-audio');
 
     const sintese = window.speechSynthesis;
     let utteranceAtual = null;
     let estaFalando = false;
     let estaPausado = false;
+
+    function mostrarAvisoAudio(texto) {
+      elAvisoAudio.textContent = texto;
+      elAvisoAudio.classList.remove('hidden');
+    }
+
+    function esconderAvisoAudio() {
+      elAvisoAudio.classList.add('hidden');
+    }
+
+    // Alguns navegadores embutidos (ex.: leitor de QR Code da camera, apps como
+    // Instagram/WhatsApp) nao expoem a Web Speech API. Sem esse aviso, o botao
+    // "Ouvir" nao faz nada e nenhum som e emitido, sem qualquer explicacao.
+    if (!sintese) {
+      btnTocarPausar.disabled = true;
+      btnRepetir.disabled = true;
+      btnTocarPausar.classList.add('opacity-50', 'cursor-not-allowed');
+      btnRepetir.classList.add('opacity-50', 'cursor-not-allowed');
+      mostrarAvisoAudio('Este navegador nao oferece leitura em voz alta automatica. Isso e comum ao abrir o link direto pelo aplicativo da camera ou por redes sociais. Toque em "Abrir no navegador" (se disponivel) ou cole o link no Chrome/Safari para ouvir o audio. O texto completo de cada bloco continua disponivel abaixo para leitura.');
+    }
 
     function pararFala() {
       if (sintese) sintese.cancel();
@@ -161,13 +183,33 @@
       }
     }
 
-    function falarBlocoAtual() {
+    // Em varios navegadores (sobretudo Chrome/Android) a lista de vozes carrega
+    // de forma assincrona: chamar speak() antes disso pode nao emitir som algum,
+    // sem gerar erro. Aguardamos "voiceschanged" (com um limite de tempo) antes
+    // de falar pela primeira vez.
+    function vozesProntas() {
+      if (sintese.getVoices().length > 0) return Promise.resolve();
+      return new Promise((resolve) => {
+        const finalizar = () => resolve();
+        sintese.addEventListener('voiceschanged', finalizar, { once: true });
+        setTimeout(finalizar, 1000);
+      });
+    }
+
+    async function falarBlocoAtual() {
       if (!sintese) return;
+      esconderAvisoAudio();
+      await vozesProntas();
       sintese.cancel();
       const bloco = blocos[indiceAtual];
       const utterance = new SpeechSynthesisUtterance(bloco.texto || 'Sem informacoes cadastradas para este bloco.');
       utterance.lang = 'pt-BR';
       utterance.rate = 0.95;
+      const vozPt = sintese.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('pt'));
+      if (vozPt) utterance.voice = vozPt;
+      else if (sintese.getVoices().length === 0) {
+        mostrarAvisoAudio('Nenhuma voz de sintese foi encontrada neste dispositivo/navegador. Ative um mecanismo de sintese de voz nas configuracoes do celular ou abra este link em outro navegador para ouvir o audio.');
+      }
       utterance.onstart = () => {
         estaFalando = true;
         estaPausado = false;
@@ -182,6 +224,7 @@
         estaFalando = false;
         estaPausado = false;
         atualizarBotaoTocarPausar();
+        mostrarAvisoAudio('Nao foi possivel reproduzir o audio neste navegador. Tente abrir o link no navegador padrao do celular (Chrome ou Safari).');
       };
       utteranceAtual = utterance;
       sintese.speak(utterance);
