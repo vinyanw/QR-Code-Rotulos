@@ -166,8 +166,16 @@
         </div>
       </fieldset>
 
-      <div class="flex justify-end">
-        <button type="submit"
+      <div id="aviso-edicao" class="hidden bg-amber-100 text-amber-800 font-medium rounded-lg p-3" role="status" aria-live="polite">
+        Editando produto cadastrado. As alteracoes so serao salvas ao clicar em "Atualizar produto".
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button type="button" id="btn-cancelar-edicao"
+          class="hidden bg-white border-2 border-slate-400 text-slate-700 font-bold px-6 py-3 rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+          Cancelar edicao
+        </button>
+        <button type="submit" id="btn-salvar"
           class="bg-emerald-800 hover:bg-emerald-900 text-white text-lg font-bold px-6 py-3 rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-emerald-800">
           Salvar produto
         </button>

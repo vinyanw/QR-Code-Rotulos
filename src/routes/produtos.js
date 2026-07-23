@@ -112,6 +112,49 @@ router.post('/produtos', (req, res) => {
   res.status(201).json({ produto, urlPublica });
 });
 
+// PUT /api/produtos/:id -> atualiza produto existente
+router.put('/produtos/:id', (req, res) => {
+  const existente = db.prepare('SELECT id FROM produtos WHERE id = ?').get(req.params.id);
+  if (!existente) return res.status(404).json({ erro: 'Produto nao encontrado.' });
+
+  const dados = normalizarPayload(req.body);
+  if (!dados.nome || !dados.marca) {
+    return res.status(400).json({ erro: 'Os campos "nome" e "marca" sao obrigatorios.' });
+  }
+
+  const sugestao = gerarNarrativas(dados);
+
+  const stmt = db.prepare(`
+    UPDATE produtos SET
+      nome = @nome, marca = @marca,
+      porcao_qtd = @porcao_qtd, porcao_medida_caseira = @porcao_medida_caseira, porcoes_embalagem = @porcoes_embalagem,
+      alerta_acucar = @alerta_acucar, alerta_gordura_saturada = @alerta_gordura_saturada, alerta_sodio = @alerta_sodio,
+      valor_energetico_kcal = @valor_energetico_kcal, valor_energetico_kj = @valor_energetico_kj,
+      carboidratos_g = @carboidratos_g, proteinas_g = @proteinas_g, gorduras_totais_g = @gorduras_totais_g,
+      gorduras_saturadas_g = @gorduras_saturadas_g, gorduras_trans_g = @gorduras_trans_g, fibra_g = @fibra_g, sodio_mg = @sodio_mg,
+      vd_carboidratos = @vd_carboidratos, vd_proteinas = @vd_proteinas, vd_gorduras_totais = @vd_gorduras_totais,
+      vd_gorduras_saturadas = @vd_gorduras_saturadas, vd_fibra = @vd_fibra, vd_sodio = @vd_sodio,
+      ingredientes = @ingredientes, alergenicos = @alergenicos,
+      texto_bloco1 = @texto_bloco1, texto_bloco2 = @texto_bloco2, texto_bloco3 = @texto_bloco3, texto_bloco4 = @texto_bloco4,
+      updated_at = datetime('now')
+    WHERE id = @id
+  `);
+
+  stmt.run({
+    id: req.params.id,
+    ...dados,
+    texto_bloco1: req.body.texto_bloco1 || sugestao.texto_bloco1,
+    texto_bloco2: req.body.texto_bloco2 || sugestao.texto_bloco2,
+    texto_bloco3: req.body.texto_bloco3 || sugestao.texto_bloco3,
+    texto_bloco4: req.body.texto_bloco4 || sugestao.texto_bloco4,
+  });
+
+  const produto = db.prepare('SELECT * FROM produtos WHERE id = ?').get(req.params.id);
+  const urlPublica = `${getBaseUrl(req)}/p/${produto.id}`;
+
+  res.json({ produto, urlPublica });
+});
+
 // GET /api/produtos -> lista (para o painel admin)
 router.get('/produtos', (req, res) => {
   const produtos = db.prepare('SELECT id, nome, marca, created_at FROM produtos ORDER BY created_at DESC').all();

@@ -53,6 +53,44 @@
   const form = document.getElementById('form-produto');
   const mensagemEl = document.getElementById('mensagem');
   const btnGerarTextos = document.getElementById('btn-gerar-textos');
+  const btnSalvar = document.getElementById('btn-salvar');
+  const btnCancelarEdicao = document.getElementById('btn-cancelar-edicao');
+  const avisoEdicao = document.getElementById('aviso-edicao');
+
+  let produtoEmEdicaoId = null;
+
+  // Evita que a tecla Enter em um campo de texto envie o formulario sem querer.
+  // O cadastro/atualizacao so deve acontecer ao clicar no botao de confirmar.
+  form.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter' && evento.target.tagName === 'INPUT') {
+      evento.preventDefault();
+    }
+  });
+
+  function entrarModoEdicao(produto) {
+    produtoEmEdicaoId = produto.id;
+    Object.keys(produto).forEach((chave) => {
+      const campo = form.elements.namedItem(chave);
+      if (!campo) return;
+      if (campo.type === 'checkbox') campo.checked = !!produto[chave];
+      else campo.value = produto[chave] ?? '';
+    });
+    btnSalvar.textContent = 'Atualizar produto';
+    btnCancelarEdicao.classList.remove('hidden');
+    avisoEdicao.classList.remove('hidden');
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('nome').focus();
+  }
+
+  function sairModoEdicao() {
+    produtoEmEdicaoId = null;
+    form.reset();
+    btnSalvar.textContent = 'Salvar produto';
+    btnCancelarEdicao.classList.add('hidden');
+    avisoEdicao.classList.add('hidden');
+  }
+
+  btnCancelarEdicao.addEventListener('click', sairModoEdicao);
 
   function coletarDados() {
     const dados = {};
@@ -100,13 +138,16 @@
       return;
     }
 
-    const botaoSalvar = form.querySelector('button[type="submit"]');
-    botaoSalvar.disabled = true;
-    botaoSalvar.textContent = 'Salvando...';
+    const emEdicao = Boolean(produtoEmEdicaoId);
+    const url = emEdicao ? `/api/produtos/${produtoEmEdicaoId}` : '/api/produtos';
+    const metodo = emEdicao ? 'PUT' : 'POST';
+
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = emEdicao ? 'Atualizando...' : 'Salvando...';
 
     try {
-      const resposta = await fetch('/api/produtos', {
-        method: 'POST',
+      const resposta = await fetch(url, {
+        method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(coletarDados()),
       });
@@ -117,15 +158,15 @@
       }
 
       const { produto, urlPublica } = await resposta.json();
-      mostrarMensagem(`Produto "${produto.nome}" cadastrado com sucesso!`);
+      mostrarMensagem(`Produto "${produto.nome}" ${emEdicao ? 'atualizado' : 'cadastrado'} com sucesso!`);
       await exibirResultado(produto.id, urlPublica);
-      form.reset();
+      sairModoEdicao();
       carregarListaProdutos();
     } catch (err) {
       mostrarMensagem(err.message, 'erro');
+      btnSalvar.textContent = emEdicao ? 'Atualizar produto' : 'Salvar produto';
     } finally {
-      botaoSalvar.disabled = false;
-      botaoSalvar.textContent = 'Salvar produto';
+      btnSalvar.disabled = false;
     }
   });
 
@@ -182,7 +223,22 @@
         linkQr.className = 'text-slate-700 underline';
         linkQr.textContent = 'Baixar QR Code';
 
-        acoes.append(linkVer, linkQr);
+        const btnEditar = document.createElement('button');
+        btnEditar.type = 'button';
+        btnEditar.className = 'text-emerald-700 underline';
+        btnEditar.textContent = 'Editar';
+        btnEditar.addEventListener('click', async () => {
+          try {
+            const resp = await fetch(`/api/produtos/${produto.id}`);
+            if (!resp.ok) throw new Error('Nao foi possivel carregar o produto para edicao.');
+            const produtoCompleto = await resp.json();
+            entrarModoEdicao(produtoCompleto);
+          } catch (err) {
+            mostrarMensagem(err.message, 'erro');
+          }
+        });
+
+        acoes.append(linkVer, linkQr, btnEditar);
         li.append(info, acoes);
         lista.appendChild(li);
       });

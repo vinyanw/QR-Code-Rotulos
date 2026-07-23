@@ -20,11 +20,14 @@ app.use('/shared', express.static(path.join(__dirname, 'public', 'shared')));
 app.use('/api', produtosRouter);
 
 // Pagina publica do produto: /p/:id
+// Serve primeiro os arquivos estaticos (ex.: /p/produto.js), senao a rota
+// coringa abaixo intercepta esses pedidos como se fossem um :id de produto.
+app.use('/p', express.static(path.join(__dirname, 'public', 'produto')));
+
 // Serve sempre o mesmo HTML; o JS do cliente le o id da URL e busca os dados via /api/produtos/:id
 app.get('/p/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'produto', 'index.html'));
 });
-app.use('/p', express.static(path.join(__dirname, 'public', 'produto')));
 
 // Raiz redireciona para o painel admin
 app.get('/', (req, res) => {
