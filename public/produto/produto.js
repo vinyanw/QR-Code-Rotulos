@@ -140,11 +140,15 @@
     const btnTocarPausar = document.getElementById('btn-tocar-pausar');
     const btnRepetir = document.getElementById('btn-repetir');
     const elAvisoAudio = document.getElementById('aviso-audio');
+    const audioEl = document.getElementById('audio-bloco');
 
     const sintese = window.speechSynthesis;
-    let utteranceAtual = null;
     let estaFalando = false;
     let estaPausado = false;
+    let estaCarregando = false;
+    // 'cloud'  -> tocando audio com voz natural gerada em nuvem (Google TTS)
+    // 'browser'-> tocando com a sintese de voz do proprio navegador (fallback)
+    let modoAtivo = null;
 
     function mostrarAvisoAudio(texto) {
       elAvisoAudio.textContent = texto;
@@ -155,26 +159,24 @@
       elAvisoAudio.classList.add('hidden');
     }
 
-    // Alguns navegadores embutidos (ex.: leitor de QR Code da camera, apps como
-    // Instagram/WhatsApp) nao expoem a Web Speech API. Sem esse aviso, o botao
-    // "Ouvir" nao faz nada e nenhum som e emitido, sem qualquer explicacao.
-    if (!sintese) {
-      btnTocarPausar.disabled = true;
-      btnRepetir.disabled = true;
-      btnTocarPausar.classList.add('opacity-50', 'cursor-not-allowed');
-      btnRepetir.classList.add('opacity-50', 'cursor-not-allowed');
-      mostrarAvisoAudio('Este navegador nao oferece leitura em voz alta automatica. Isso e comum ao abrir o link direto pelo aplicativo da camera ou por redes sociais. Toque em "Abrir no navegador" (se disponivel) ou cole o link no Chrome/Safari para ouvir o audio. O texto completo de cada bloco continua disponivel abaixo para leitura.');
-    }
-
     function pararFala() {
       if (sintese) sintese.cancel();
+      if (!audioEl.paused || audioEl.currentTime > 0) {
+        audioEl.pause();
+        audioEl.currentTime = 0;
+      }
+      modoAtivo = null;
       estaFalando = false;
       estaPausado = false;
+      estaCarregando = false;
       atualizarBotaoTocarPausar();
     }
 
     function atualizarBotaoTocarPausar() {
-      if (estaFalando && !estaPausado) {
+      if (estaCarregando) {
+        btnTocarPausar.innerHTML = 'Carregando audio...';
+        btnTocarPausar.setAttribute('aria-label', 'Carregando audio deste bloco');
+      } else if (estaFalando && !estaPausado) {
         btnTocarPausar.innerHTML = '&#10073;&#10073; Pausar';
         btnTocarPausar.setAttribute('aria-label', 'Pausar audio deste bloco');
       } else {
@@ -182,6 +184,44 @@
         btnTocarPausar.setAttribute('aria-label', 'Tocar audio deste bloco');
       }
     }
+
+    // Toca o audio com voz natural gerado em nuvem (Google Cloud TTS) para o
+    // bloco atual. Retorna false se o audio em nuvem nao estiver disponivel
+    // (nao configurado no servidor, sem internet, etc.), para permitir cair
+    // no fallback do navegador sem incomodar o usuario com um erro visivel.
+    async function tocarAudioNuvem() {
+      try {
+        const resposta = await fetch(`/api/produtos/${produto.id}/audio/${indiceAtual + 1}`);
+        if (!resposta.ok) return false;
+        const blob = await resposta.blob();
+        const url = URL.createObjectURL(blob);
+        audioEl.src = url;
+        modoAtivo = 'cloud';
+        await audioEl.play();
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    audioEl.addEventListener('play', () => {
+      if (modoAtivo !== 'cloud') return;
+      estaCarregando = false;
+      estaFalando = true;
+      estaPausado = false;
+      atualizarBotaoTocarPausar();
+    });
+    audioEl.addEventListener('pause', () => {
+      if (modoAtivo !== 'cloud') return;
+      if (!audioEl.ended) estaPausado = true;
+      atualizarBotaoTocarPausar();
+    });
+    audioEl.addEventListener('ended', () => {
+      if (modoAtivo !== 'cloud') return;
+      estaFalando = false;
+      estaPausado = false;
+      atualizarBotaoTocarPausar();
+    });
 
     // Em varios navegadores (sobretudo Chrome/Android) a lista de vozes carrega
     // de forma assincrona: chamar speak() antes disso pode nao emitir som algum,
@@ -196,13 +236,18 @@
       });
     }
 
-    async function falarBlocoAtual() {
-      if (!sintese) return;
-      esconderAvisoAudio();
+    async function falarComVozDoNavegador() {
+      if (!sintese) {
+        mostrarAvisoAudio('Este navegador nao oferece leitura em voz alta (nem em nuvem, nem local). Isso e comum ao abrir o link direto pelo aplicativo da camera ou por redes sociais. Tente abrir o link no navegador padrao do celular (Chrome ou Safari). O texto completo de cada bloco continua disponivel abaixo para leitura.');
+        estaCarregando = false;
+        atualizarBotaoTocarPausar();
+        return;
+      }
       await vozesProntas();
       sintese.cancel();
+      modoAtivo = 'browser';
       const bloco = blocos[indiceAtual];
-      const utterance = new SpeechSynthesisUtterance(bloco.texto || 'Sem informacoes cadastradas para este bloco.');
+      const utterance = new SpeechSynthesisUtterance(bloco.texto || 'Sem informações cadastradas para este bloco.');
       utterance.lang = 'pt-BR';
       utterance.rate = 0.95;
       const vozPt = sintese.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('pt'));
@@ -211,6 +256,7 @@
         mostrarAvisoAudio('Nenhuma voz de sintese foi encontrada neste dispositivo/navegador. Ative um mecanismo de sintese de voz nas configuracoes do celular ou abra este link em outro navegador para ouvir o audio.');
       }
       utterance.onstart = () => {
+        estaCarregando = false;
         estaFalando = true;
         estaPausado = false;
         atualizarBotaoTocarPausar();
@@ -221,20 +267,31 @@
         atualizarBotaoTocarPausar();
       };
       utterance.onerror = () => {
+        estaCarregando = false;
         estaFalando = false;
         estaPausado = false;
         atualizarBotaoTocarPausar();
         mostrarAvisoAudio('Nao foi possivel reproduzir o audio neste navegador. Tente abrir o link no navegador padrao do celular (Chrome ou Safari).');
       };
-      utteranceAtual = utterance;
       sintese.speak(utterance);
+    }
+
+    async function falarBlocoAtual() {
+      esconderAvisoAudio();
+      pararFala();
+      estaCarregando = true;
+      atualizarBotaoTocarPausar();
+      const tocouEmNuvem = await tocarAudioNuvem();
+      if (!tocouEmNuvem) {
+        await falarComVozDoNavegador();
+      }
     }
 
     function renderizarBloco(moverFoco) {
       const bloco = blocos[indiceAtual];
       elIndicador.textContent = bloco.titulo;
       elTituloBloco.textContent = bloco.titulo;
-      elTextoBloco.textContent = bloco.texto || 'Sem informacoes cadastradas para este bloco.';
+      elTextoBloco.textContent = bloco.texto || 'Sem informações cadastradas para este bloco.';
       elDetalhesBloco.innerHTML = bloco.detalhesHtml || '';
       atualizarEstadoNavegacao(indiceAtual);
       pararFala();
@@ -253,13 +310,15 @@
     document.getElementById('btn-repetir').addEventListener('click', () => falarBlocoAtual());
 
     btnTocarPausar.addEventListener('click', () => {
-      if (!sintese) return;
+      if (estaCarregando) return;
       if (estaFalando && !estaPausado) {
-        sintese.pause();
+        if (modoAtivo === 'cloud') audioEl.pause();
+        else if (sintese) sintese.pause();
         estaPausado = true;
         atualizarBotaoTocarPausar();
       } else if (estaPausado) {
-        sintese.resume();
+        if (modoAtivo === 'cloud') audioEl.play();
+        else if (sintese) sintese.resume();
         estaPausado = false;
         atualizarBotaoTocarPausar();
       } else {

@@ -2,6 +2,10 @@
  * Gera os 4 textos narrativos (linguagem simples) a partir dos dados brutos
  * do formulario. O resultado e apenas uma SUGESTAO: o usuario do painel pode
  * editar livremente antes de salvar o produto.
+ *
+ * Os textos usam acentuacao correta em portugues porque sao lidos em voz alta
+ * pela sintese de fala (Web Speech API): sem acento/cedilha, a pronuncia e a
+ * tonica saem erradas (ex.: "sodio" soa estranho, "sódio" soa natural).
  */
 
 function numeroOuTraco(v) {
@@ -11,33 +15,33 @@ function numeroOuTraco(v) {
 
 function gerarBloco1({ nome, marca, alerta_acucar, alerta_gordura_saturada, alerta_sodio }) {
   const alertas = [];
-  if (alerta_acucar) alertas.push('alto teor de acucar adicionado');
+  if (alerta_acucar) alertas.push('alto teor de açúcar adicionado');
   if (alerta_gordura_saturada) alertas.push('alto teor de gordura saturada');
-  if (alerta_sodio) alertas.push('alto teor de sodio');
+  if (alerta_sodio) alertas.push('alto teor de sódio');
 
-  const cabecalho = `Voce esta ouvindo as informacoes do produto ${nome || 'sem nome informado'}, da marca ${marca || 'nao informada'}.`;
+  const cabecalho = `Você está ouvindo as informações do produto ${nome || 'sem nome informado'}, da marca ${marca || 'não informada'}.`;
 
   if (alertas.length === 0) {
-    return `${cabecalho} Este produto nao apresenta selos de alerta da Anvisa. Isso significa que ele nao tem quantidades altas de acucar adicionado, gordura saturada ou sodio, segundo a rotulagem frontal.`;
+    return `${cabecalho} Este produto não apresenta selos de alerta da Anvisa. Isso significa que ele não tem quantidades altas de açúcar adicionado, gordura saturada ou sódio, segundo a rotulagem frontal.`;
   }
 
   const listaAlertas = alertas.length === 1
     ? alertas[0]
     : alertas.slice(0, -1).join(', ') + ' e ' + alertas[alertas.length - 1];
 
-  return `${cabecalho} Atencao: este produto possui selo de alerta da Anvisa por conter ${listaAlertas}. Recomenda-se atencao ao consumo frequente.`;
+  return `${cabecalho} Atenção: este produto possui selo de alerta da Anvisa por conter ${listaAlertas}. Recomenda-se atenção ao consumo frequente.`;
 }
 
 function gerarBloco2({ porcao_qtd, porcao_medida_caseira, porcoes_embalagem }) {
   const partes = [];
   if (porcao_qtd) {
-    partes.push(`Cada porcao deste produto e de ${porcao_qtd}${porcao_medida_caseira ? `, o que equivale a ${porcao_medida_caseira}` : ''}.`);
+    partes.push(`Cada porção deste produto é de ${porcao_qtd}${porcao_medida_caseira ? `, o que equivale a ${porcao_medida_caseira}` : ''}.`);
   }
   if (porcoes_embalagem) {
-    partes.push(`A embalagem inteira rende ${porcoes_embalagem} porcoes.`);
+    partes.push(`A embalagem inteira rende ${porcoes_embalagem} porções.`);
   }
   if (partes.length === 0) {
-    return 'Informacoes de porcao nao foram cadastradas para este produto.';
+    return 'Informações de porção não foram cadastradas para este produto.';
   }
   return partes.join(' ');
 }
@@ -57,48 +61,48 @@ function gerarBloco3(dados) {
   const frases = [];
 
   if (numeroOuTraco(valor_energetico_kcal)) {
-    frases.push(`Cada porcao fornece ${valor_energetico_kcal} quilocalorias${valor_energetico_kj ? ` (${valor_energetico_kj} quilojoules)` : ''}.`);
+    frases.push(`Cada porção fornece ${valor_energetico_kcal} quilocalorias${valor_energetico_kj ? ` (${valor_energetico_kj} quilojoules)` : ''}.`);
   }
   if (numeroOuTraco(carboidratos_g)) {
-    frases.push(`Carboidratos: ${carboidratos_g} gramas${vd_carboidratos ? `, equivalente a ${vd_carboidratos} por cento do valor diario` : ''}.`);
+    frases.push(`Carboidratos: ${carboidratos_g} gramas${vd_carboidratos ? `, equivalente a ${vd_carboidratos} por cento do valor diário` : ''}.`);
   }
   if (numeroOuTraco(proteinas_g)) {
-    frases.push(`Proteinas: ${proteinas_g} gramas${vd_proteinas ? `, equivalente a ${vd_proteinas} por cento do valor diario` : ''}.`);
+    frases.push(`Proteínas: ${proteinas_g} gramas${vd_proteinas ? `, equivalente a ${vd_proteinas} por cento do valor diário` : ''}.`);
   }
   if (numeroOuTraco(gorduras_totais_g)) {
-    frases.push(`Gorduras totais: ${gorduras_totais_g} gramas${vd_gorduras_totais ? `, equivalente a ${vd_gorduras_totais} por cento do valor diario` : ''}.`);
+    frases.push(`Gorduras totais: ${gorduras_totais_g} gramas${vd_gorduras_totais ? `, equivalente a ${vd_gorduras_totais} por cento do valor diário` : ''}.`);
   }
   if (numeroOuTraco(gorduras_saturadas_g)) {
-    frases.push(`Gorduras saturadas: ${gorduras_saturadas_g} gramas${vd_gorduras_saturadas ? `, equivalente a ${vd_gorduras_saturadas} por cento do valor diario` : ''}.`);
+    frases.push(`Gorduras saturadas: ${gorduras_saturadas_g} gramas${vd_gorduras_saturadas ? `, equivalente a ${vd_gorduras_saturadas} por cento do valor diário` : ''}.`);
   }
   if (numeroOuTraco(gorduras_trans_g)) {
     frases.push(`Gorduras trans: ${gorduras_trans_g} gramas.`);
   }
   if (numeroOuTraco(fibra_g)) {
-    frases.push(`Fibras: ${fibra_g} gramas${vd_fibra ? `, equivalente a ${vd_fibra} por cento do valor diario` : ''}.`);
+    frases.push(`Fibras: ${fibra_g} gramas${vd_fibra ? `, equivalente a ${vd_fibra} por cento do valor diário` : ''}.`);
   }
   if (numeroOuTraco(sodio_mg)) {
-    frases.push(`Sodio: ${sodio_mg} miligramas${vd_sodio ? `, equivalente a ${vd_sodio} por cento do valor diario` : ''}.`);
+    frases.push(`Sódio: ${sodio_mg} miligramas${vd_sodio ? `, equivalente a ${vd_sodio} por cento do valor diário` : ''}.`);
   }
 
   if (frases.length === 0) {
-    return 'A tabela nutricional deste produto nao foi cadastrada.';
+    return 'A tabela nutricional deste produto não foi cadastrada.';
   }
 
-  return `A seguir, os valores nutricionais por porcao. ${frases.join(' ')} Lembrando que o valor diario e calculado com base em uma dieta de dois mil calorias.`;
+  return `A seguir, os valores nutricionais por porção. ${frases.join(' ')} Lembrando que o valor diário é calculado com base em uma dieta de dois mil calorias.`;
 }
 
 function gerarBloco4({ ingredientes, alergenicos }) {
   const partes = [];
   if (ingredientes && ingredientes.trim()) {
-    partes.push(`Os ingredientes deste produto, listados em ordem decrescente de quantidade, sao: ${ingredientes.trim()}.`);
+    partes.push(`Os ingredientes deste produto, listados em ordem decrescente de quantidade, são: ${ingredientes.trim()}.`);
   } else {
-    partes.push('A lista de ingredientes deste produto nao foi cadastrada.');
+    partes.push('A lista de ingredientes deste produto não foi cadastrada.');
   }
   if (alergenicos && alergenicos.trim()) {
-    partes.push(`Alerta de alergenicos: este produto contem ou pode conter ${alergenicos.trim()}.`);
+    partes.push(`Alerta de alergênicos: este produto contém ou pode conter ${alergenicos.trim()}.`);
   } else {
-    partes.push('Nenhum alergenico foi informado para este produto.');
+    partes.push('Nenhum alergênico foi informado para este produto.');
   }
   return partes.join(' ');
 }

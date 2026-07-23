@@ -1,14 +1,27 @@
 const path = require('path');
 const fs = require('fs');
-const Database = require('better-sqlite3');
+const { createClient } = require('@libsql/client');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const db = new Database(path.join(DATA_DIR, 'produtos.db'));
-db.pragma('journal_mode = WAL');
+// Usa o Turso (libSQL) para persistir os dados de verdade em producao: no
+// plano gratuito do Render, o sistema de arquivos local e apagado sempre que
+// o servico "dorme" e acorda de novo (ou a cada novo deploy), entao gravar
+// num arquivo SQLite local no proprio servidor nao sobrevive -- era essa a
+// causa dos produtos cadastrados sumirem.
+//
+// Configure as variaveis de ambiente TURSO_DATABASE_URL e TURSO_AUTH_TOKEN
+// (crie um banco gratuito, sem cartao de credito, em https://turso.tech) para
+// persistir de verdade. Sem essas variaveis definidas, cai para um arquivo
+// SQLite local -- otimo para rodar o projeto na sua maquina durante o
+// desenvolvimento, mas NAO deve ser usado assim em producao no Render.
+const url = process.env.TURSO_DATABASE_URL || `file:${path.join(DATA_DIR, 'produtos.db')}`;
+const authToken = process.env.TURSO_AUTH_TOKEN;
 
-db.exec(`
+const db = createClient(authToken ? { url, authToken } : { url });
+
+const pronto = db.execute(`
   CREATE TABLE IF NOT EXISTS produtos (
     id TEXT PRIMARY KEY,
     nome TEXT NOT NULL,
@@ -52,4 +65,4 @@ db.exec(`
   );
 `);
 
-module.exports = db;
+module.exports = { db, pronto };

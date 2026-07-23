@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 
 const produtosRouter = require('./src/routes/produtos');
-const db = require('./src/db');
+const { pronto } = require('./src/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,13 +38,19 @@ app.use((req, res) => {
   res.status(404).send('Pagina nao encontrada.');
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-  console.log(`Painel admin:   http://localhost:${PORT}/admin`);
-  console.log(`Banco de dados: ${path.join(__dirname, 'data', 'produtos.db')}`);
-});
+pronto
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando em http://localhost:${PORT}`);
+      console.log(`Painel admin:   http://localhost:${PORT}/admin`);
+      console.log(`Banco de dados: ${process.env.TURSO_DATABASE_URL || path.join(__dirname, 'data', 'produtos.db')}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Falha ao inicializar o banco de dados:', err);
+    process.exit(1);
+  });
 
 process.on('SIGINT', () => {
-  db.close();
   process.exit(0);
 });
