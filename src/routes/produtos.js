@@ -13,8 +13,8 @@ const router = express.Router();
 const QRCODES_DIR = path.join(__dirname, '..', '..', 'qrcodes');
 if (!fs.existsSync(QRCODES_DIR)) fs.mkdirSync(QRCODES_DIR, { recursive: true });
 
-// URL base publica usada para montar o link embutido no QR Code.
-// Em producao, defina PUBLIC_BASE_URL (ex: https://meusite.com).
+// URL base pública usada para montar o link embutido no QR Code.
+// Em produção, defina PUBLIC_BASE_URL (ex: https://meusite.com).
 function getBaseUrl(req) {
   return process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
 }
@@ -28,6 +28,7 @@ function normalizarPayload(body) {
     nome: (body.nome || '').trim(),
     marca: (body.marca || '').trim(),
     data_validade: (body.data_validade || '').trim(),
+    lote: (body.lote || '').trim(),
 
     porcao_qtd: (body.porcao_qtd || '').trim(),
     porcao_medida_caseira: (body.porcao_medida_caseira || '').trim(),
@@ -38,7 +39,6 @@ function normalizarPayload(body) {
     alerta_sodio: toBoolInt(body.alerta_sodio),
 
     valor_energetico_kcal: (body.valor_energetico_kcal || '').trim(),
-    valor_energetico_kj: (body.valor_energetico_kj || '').trim(),
     carboidratos_g: (body.carboidratos_g || '').trim(),
     proteinas_g: (body.proteinas_g || '').trim(),
     gorduras_totais_g: (body.gorduras_totais_g || '').trim(),
@@ -46,6 +46,7 @@ function normalizarPayload(body) {
     gorduras_trans_g: (body.gorduras_trans_g || '').trim(),
     fibra_g: (body.fibra_g || '').trim(),
     sodio_mg: (body.sodio_mg || '').trim(),
+    calcio_mg: (body.calcio_mg || '').trim(),
 
     vd_carboidratos: (body.vd_carboidratos || '').trim(),
     vd_proteinas: (body.vd_proteinas || '').trim(),
@@ -53,13 +54,15 @@ function normalizarPayload(body) {
     vd_gorduras_saturadas: (body.vd_gorduras_saturadas || '').trim(),
     vd_fibra: (body.vd_fibra || '').trim(),
     vd_sodio: (body.vd_sodio || '').trim(),
+    vd_calcio: (body.vd_calcio || '').trim(),
 
     ingredientes: (body.ingredientes || '').trim(),
     alergenicos: (body.alergenicos || '').trim(),
+    armazenamento: (body.armazenamento || '').trim(),
   };
 }
 
-// POST /api/narrativas -> gera sugestao dos 4 textos sem salvar nada
+// POST /api/narrativas -> gera sugestão dos 4 textos sem salvar nada
 router.post('/narrativas', (req, res) => {
   const dados = normalizarPayload(req.body);
   const narrativas = gerarNarrativas(dados);
@@ -71,7 +74,7 @@ router.post('/produtos', async (req, res) => {
   const dados = normalizarPayload(req.body);
 
   if (!dados.nome || !dados.marca) {
-    return res.status(400).json({ erro: 'Os campos "nome" e "marca" sao obrigatorios.' });
+    return res.status(400).json({ erro: 'Os campos "nome" e "marca" são obrigatórios.' });
   }
 
   const sugestao = gerarNarrativas(dados);
@@ -81,22 +84,22 @@ router.post('/produtos', async (req, res) => {
     await db.execute({
       sql: `
         INSERT INTO produtos (
-          id, nome, marca, data_validade,
+          id, nome, marca, data_validade, lote,
           porcao_qtd, porcao_medida_caseira, porcoes_embalagem,
           alerta_acucar, alerta_gordura_saturada, alerta_sodio,
-          valor_energetico_kcal, valor_energetico_kj,
-          carboidratos_g, proteinas_g, gorduras_totais_g, gorduras_saturadas_g, gorduras_trans_g, fibra_g, sodio_mg,
-          vd_carboidratos, vd_proteinas, vd_gorduras_totais, vd_gorduras_saturadas, vd_fibra, vd_sodio,
-          ingredientes, alergenicos,
+          valor_energetico_kcal,
+          carboidratos_g, proteinas_g, gorduras_totais_g, gorduras_saturadas_g, gorduras_trans_g, fibra_g, sodio_mg, calcio_mg,
+          vd_carboidratos, vd_proteinas, vd_gorduras_totais, vd_gorduras_saturadas, vd_fibra, vd_sodio, vd_calcio,
+          ingredientes, alergenicos, armazenamento,
           texto_bloco1, texto_bloco2, texto_bloco3, texto_bloco4
         ) VALUES (
-          @id, @nome, @marca, @data_validade,
+          @id, @nome, @marca, @data_validade, @lote,
           @porcao_qtd, @porcao_medida_caseira, @porcoes_embalagem,
           @alerta_acucar, @alerta_gordura_saturada, @alerta_sodio,
-          @valor_energetico_kcal, @valor_energetico_kj,
-          @carboidratos_g, @proteinas_g, @gorduras_totais_g, @gorduras_saturadas_g, @gorduras_trans_g, @fibra_g, @sodio_mg,
-          @vd_carboidratos, @vd_proteinas, @vd_gorduras_totais, @vd_gorduras_saturadas, @vd_fibra, @vd_sodio,
-          @ingredientes, @alergenicos,
+          @valor_energetico_kcal,
+          @carboidratos_g, @proteinas_g, @gorduras_totais_g, @gorduras_saturadas_g, @gorduras_trans_g, @fibra_g, @sodio_mg, @calcio_mg,
+          @vd_carboidratos, @vd_proteinas, @vd_gorduras_totais, @vd_gorduras_saturadas, @vd_fibra, @vd_sodio, @vd_calcio,
+          @ingredientes, @alergenicos, @armazenamento,
           @texto_bloco1, @texto_bloco2, @texto_bloco3, @texto_bloco4
         )
       `,
@@ -122,11 +125,11 @@ router.post('/produtos', async (req, res) => {
 // PUT /api/produtos/:id -> atualiza produto existente
 router.put('/produtos/:id', async (req, res) => {
   const { rows: existentes } = await db.execute({ sql: 'SELECT id FROM produtos WHERE id = @id', args: { id: req.params.id } });
-  if (existentes.length === 0) return res.status(404).json({ erro: 'Produto nao encontrado.' });
+  if (existentes.length === 0) return res.status(404).json({ erro: 'Produto não encontrado.' });
 
   const dados = normalizarPayload(req.body);
   if (!dados.nome || !dados.marca) {
-    return res.status(400).json({ erro: 'Os campos "nome" e "marca" sao obrigatorios.' });
+    return res.status(400).json({ erro: 'Os campos "nome" e "marca" são obrigatórios.' });
   }
 
   const sugestao = gerarNarrativas(dados);
@@ -135,15 +138,15 @@ router.put('/produtos/:id', async (req, res) => {
     await db.execute({
       sql: `
         UPDATE produtos SET
-          nome = @nome, marca = @marca, data_validade = @data_validade,
+          nome = @nome, marca = @marca, data_validade = @data_validade, lote = @lote,
           porcao_qtd = @porcao_qtd, porcao_medida_caseira = @porcao_medida_caseira, porcoes_embalagem = @porcoes_embalagem,
           alerta_acucar = @alerta_acucar, alerta_gordura_saturada = @alerta_gordura_saturada, alerta_sodio = @alerta_sodio,
-          valor_energetico_kcal = @valor_energetico_kcal, valor_energetico_kj = @valor_energetico_kj,
+          valor_energetico_kcal = @valor_energetico_kcal,
           carboidratos_g = @carboidratos_g, proteinas_g = @proteinas_g, gorduras_totais_g = @gorduras_totais_g,
-          gorduras_saturadas_g = @gorduras_saturadas_g, gorduras_trans_g = @gorduras_trans_g, fibra_g = @fibra_g, sodio_mg = @sodio_mg,
+          gorduras_saturadas_g = @gorduras_saturadas_g, gorduras_trans_g = @gorduras_trans_g, fibra_g = @fibra_g, sodio_mg = @sodio_mg, calcio_mg = @calcio_mg,
           vd_carboidratos = @vd_carboidratos, vd_proteinas = @vd_proteinas, vd_gorduras_totais = @vd_gorduras_totais,
-          vd_gorduras_saturadas = @vd_gorduras_saturadas, vd_fibra = @vd_fibra, vd_sodio = @vd_sodio,
-          ingredientes = @ingredientes, alergenicos = @alergenicos,
+          vd_gorduras_saturadas = @vd_gorduras_saturadas, vd_fibra = @vd_fibra, vd_sodio = @vd_sodio, vd_calcio = @vd_calcio,
+          ingredientes = @ingredientes, alergenicos = @alergenicos, armazenamento = @armazenamento,
           texto_bloco1 = @texto_bloco1, texto_bloco2 = @texto_bloco2, texto_bloco3 = @texto_bloco3, texto_bloco4 = @texto_bloco4,
           updated_at = datetime('now')
         WHERE id = @id
@@ -174,17 +177,17 @@ router.get('/produtos', async (req, res) => {
   res.json(rows);
 });
 
-// GET /api/produtos/:id -> dados de um produto (consumido pela pagina publica)
+// GET /api/produtos/:id -> dados de um produto (consumido pela página pública)
 router.get('/produtos/:id', async (req, res) => {
   const { rows } = await db.execute({ sql: 'SELECT * FROM produtos WHERE id = @id', args: { id: req.params.id } });
-  if (rows.length === 0) return res.status(404).json({ erro: 'Produto nao encontrado.' });
+  if (rows.length === 0) return res.status(404).json({ erro: 'Produto não encontrado.' });
   res.json(rows[0]);
 });
 
 // DELETE /api/produtos/:id
 router.delete('/produtos/:id', async (req, res) => {
   const info = await db.execute({ sql: 'DELETE FROM produtos WHERE id = @id', args: { id: req.params.id } });
-  if (Number(info.rowsAffected) === 0) return res.status(404).json({ erro: 'Produto nao encontrado.' });
+  if (Number(info.rowsAffected) === 0) return res.status(404).json({ erro: 'Produto não encontrado.' });
   const qrPath = path.join(QRCODES_DIR, `${req.params.id}.png`);
   if (fs.existsSync(qrPath)) fs.unlinkSync(qrPath);
   removerCacheDoProduto(req.params.id);
@@ -194,7 +197,7 @@ router.delete('/produtos/:id', async (req, res) => {
 // GET /api/produtos/:id/qrcode -> gera (se preciso) e retorna o PNG do QR Code
 router.get('/produtos/:id/qrcode', async (req, res) => {
   const { rows } = await db.execute({ sql: 'SELECT id FROM produtos WHERE id = @id', args: { id: req.params.id } });
-  if (rows.length === 0) return res.status(404).json({ erro: 'Produto nao encontrado.' });
+  if (rows.length === 0) return res.status(404).json({ erro: 'Produto não encontrado.' });
   const produto = rows[0];
 
   const urlPublica = `${getBaseUrl(req)}/p/${produto.id}`;
@@ -213,19 +216,19 @@ router.get('/produtos/:id/qrcode', async (req, res) => {
   }
 });
 
-// GET /api/produtos/:id/audio/:bloco -> audio (mp3) com voz natural (vozes
+// GET /api/produtos/:id/audio/:bloco -> áudio (mp3) com voz natural (vozes
 // neurais do Microsoft Edge) para o bloco de texto informado (1 a 4). Se o
 // TTS em nuvem estiver desativado (EDGE_TTS_DISABLED=true) ou falhar,
-// responde com erro para que a pagina publica caia de volta na sintese de
-// voz do navegador (Web Speech API), sem quebrar a leitura por audio.
+// responde com erro para que a página pública caia de volta na síntese de
+// voz do navegador (Web Speech API), sem quebrar a leitura por áudio.
 router.get('/produtos/:id/audio/:bloco', async (req, res) => {
   const bloco = Number(req.params.bloco);
   if (![1, 2, 3, 4].includes(bloco)) {
-    return res.status(400).json({ erro: 'Bloco invalido. Use um numero de 1 a 4.' });
+    return res.status(400).json({ erro: 'Bloco inválido. Use um número de 1 a 4.' });
   }
 
   if (!ttsConfigurado()) {
-    return res.status(503).json({ erro: 'Audio em nuvem nao configurado neste servidor.' });
+    return res.status(503).json({ erro: 'Áudio em nuvem não configurado neste servidor.' });
   }
 
   const { rows } = await db.execute({
@@ -235,12 +238,12 @@ router.get('/produtos/:id/audio/:bloco', async (req, res) => {
     `,
     args: { id: req.params.id },
   });
-  if (rows.length === 0) return res.status(404).json({ erro: 'Produto nao encontrado.' });
+  if (rows.length === 0) return res.status(404).json({ erro: 'Produto não encontrado.' });
   const produto = rows[0];
 
   const texto = produto[`texto_bloco${bloco}`];
   if (!texto || !texto.trim()) {
-    return res.status(404).json({ erro: 'Este bloco nao possui texto cadastrado.' });
+    return res.status(404).json({ erro: 'Este bloco não possui texto cadastrado.' });
   }
 
   try {
@@ -251,7 +254,7 @@ router.get('/produtos/:id/audio/:bloco', async (req, res) => {
     res.setHeader('Cache-Control', 'private, max-age=86400');
     res.sendFile(caminhoCache(produto.id, bloco));
   } catch (err) {
-    res.status(502).json({ erro: 'Falha ao gerar audio em nuvem.', detalhe: err.message });
+    res.status(502).json({ erro: 'Falha ao gerar áudio em nuvem.', detalhe: err.message });
   }
 });
 

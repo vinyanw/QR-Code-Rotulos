@@ -1,12 +1,13 @@
 (() => {
   const NUTRIENTES = [
     { chave: 'carboidratos_g', vd: 'vd_carboidratos', label: 'Carboidratos (g)' },
-    { chave: 'proteinas_g', vd: 'vd_proteinas', label: 'Proteinas (g)' },
+    { chave: 'proteinas_g', vd: 'vd_proteinas', label: 'Proteínas (g)' },
     { chave: 'gorduras_totais_g', vd: 'vd_gorduras_totais', label: 'Gorduras totais (g)' },
     { chave: 'gorduras_saturadas_g', vd: 'vd_gorduras_saturadas', label: 'Gorduras saturadas (g)' },
     { chave: 'gorduras_trans_g', vd: null, label: 'Gorduras trans (g)' },
     { chave: 'fibra_g', vd: 'vd_fibra', label: 'Fibra alimentar (g)' },
-    { chave: 'sodio_mg', vd: 'vd_sodio', label: 'Sodio (mg)' },
+    { chave: 'sodio_mg', vd: 'vd_sodio', label: 'Sódio (mg)' },
+    { chave: 'calcio_mg', vd: 'vd_calcio', label: 'Cálcio (mg)' },
   ];
 
   const tabela = document.getElementById('tabela-nutrientes');
@@ -37,7 +38,7 @@
       inputVd.type = 'text';
       inputVd.id = vd;
       inputVd.name = vd;
-      inputVd.setAttribute('aria-label', `Percentual de valor diario de ${label}`);
+      inputVd.setAttribute('aria-label', `Percentual de valor diário de ${label}`);
       inputVd.placeholder = '%VD';
       inputVd.className = 'w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none';
       tdVd.appendChild(inputVd);
@@ -122,12 +123,12 @@
       document.getElementById('texto_bloco2').value = narrativas.texto_bloco2;
       document.getElementById('texto_bloco3').value = narrativas.texto_bloco3;
       document.getElementById('texto_bloco4').value = narrativas.texto_bloco4;
-      mostrarMensagem('Textos gerados. Revise e edite antes de salvar, se necessario.');
+      mostrarMensagem('Textos gerados. Revise e edite antes de salvar, se necessário.');
     } catch (err) {
-      mostrarMensagem('Nao foi possivel gerar os textos automaticamente.', 'erro');
+      mostrarMensagem('Não foi possível gerar os textos automaticamente.', 'erro');
     } finally {
       btnGerarTextos.disabled = false;
-      btnGerarTextos.textContent = 'Gerar textos automaticos';
+      btnGerarTextos.textContent = 'Gerar textos automáticos';
     }
   });
 
@@ -215,7 +216,7 @@
         linkVer.target = '_blank';
         linkVer.rel = 'noopener';
         linkVer.className = 'text-emerald-700 underline';
-        linkVer.textContent = 'Ver pagina publica';
+        linkVer.textContent = 'Ver página pública';
 
         const linkQr = document.createElement('a');
         linkQr.href = `/api/produtos/${produto.id}/qrcode`;
@@ -230,7 +231,7 @@
         btnEditar.addEventListener('click', async () => {
           try {
             const resp = await fetch(`/api/produtos/${produto.id}`);
-            if (!resp.ok) throw new Error('Nao foi possivel carregar o produto para edicao.');
+            if (!resp.ok) throw new Error('Não foi possível carregar o produto para edição.');
             const produtoCompleto = await resp.json();
             entrarModoEdicao(produtoCompleto);
           } catch (err) {

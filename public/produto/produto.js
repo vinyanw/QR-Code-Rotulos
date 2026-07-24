@@ -15,7 +15,7 @@
 
   async function buscarProduto(id) {
     const resposta = await fetch(`/api/produtos/${id}`);
-    if (!resposta.ok) throw new Error('Produto nao encontrado');
+    if (!resposta.ok) throw new Error('Produto não encontrado');
     return resposta.json();
   }
 
@@ -23,9 +23,9 @@
     const container = document.getElementById('lista-lupas');
     const secao = document.getElementById('secao-lupas');
     const lupas = [];
-    if (produto.alerta_acucar) lupas.push('Alto em Acucar Adicionado');
+    if (produto.alerta_acucar) lupas.push('Alto em Açúcar Adicionado');
     if (produto.alerta_gordura_saturada) lupas.push('Alto em Gordura Saturada');
-    if (produto.alerta_sodio) lupas.push('Alto em Sodio');
+    if (produto.alerta_sodio) lupas.push('Alto em Sódio');
 
     if (lupas.length === 0) {
       container.innerHTML = '';
@@ -51,7 +51,7 @@
 
   function criarLinhaDetalhe(rotulo, valor, vd) {
     if (!valor) return '';
-    return `<li>${rotulo}: <strong>${valor}</strong>${vd ? ` (${vd}% do valor diario)` : ''}</li>`;
+    return `<li>${rotulo}: <strong>${valor}</strong>${vd ? ` (${vd}% do valor diário)` : ''}</li>`;
   }
 
   function formatarData(dataIso) {
@@ -66,39 +66,44 @@
       {
         titulo: 'Bloco 1 de 4: Resumo e alertas',
         texto: produto.texto_bloco1,
-        detalhesHtml: produto.data_validade
-          ? `<ul class="list-disc pl-6 space-y-1"><li>Validade: <strong>${formatarData(produto.data_validade)}</strong></li></ul>`
+        detalhesHtml: (produto.data_validade || produto.lote)
+          ? `<ul class="list-disc pl-6 space-y-1">
+              ${produto.data_validade ? `<li>Validade: <strong>${formatarData(produto.data_validade)}</strong></li>` : ''}
+              ${produto.lote ? `<li>Lote: <strong>${produto.lote}</strong></li>` : ''}
+            </ul>`
           : '',
       },
       {
-        titulo: 'Bloco 2 de 4: Porcao e rendimento',
+        titulo: 'Bloco 2 de 4: Porção e rendimento',
         texto: produto.texto_bloco2,
         detalhesHtml: `<ul class="list-disc pl-6 space-y-1">
-          ${produto.porcao_qtd ? `<li>Tamanho da porcao: <strong>${produto.porcao_qtd}</strong></li>` : ''}
+          ${produto.porcao_qtd ? `<li>Tamanho da porção: <strong>${produto.porcao_qtd}</strong></li>` : ''}
           ${produto.porcao_medida_caseira ? `<li>Medida caseira: <strong>${produto.porcao_medida_caseira}</strong></li>` : ''}
-          ${produto.porcoes_embalagem ? `<li>Porcoes por embalagem: <strong>${produto.porcoes_embalagem}</strong></li>` : ''}
+          ${produto.porcoes_embalagem ? `<li>Porções por embalagem: <strong>${produto.porcoes_embalagem}</strong></li>` : ''}
         </ul>`,
       },
       {
         titulo: 'Bloco 3 de 4: Tabela nutricional',
         texto: produto.texto_bloco3,
         detalhesHtml: `<ul class="list-disc pl-6 space-y-1">
-          ${produto.valor_energetico_kcal ? `<li>Valor energetico: <strong>${produto.valor_energetico_kcal} kcal</strong>${produto.valor_energetico_kj ? ` / ${produto.valor_energetico_kj} kJ` : ''}</li>` : ''}
+          ${produto.valor_energetico_kcal ? `<li>Valor energético: <strong>${produto.valor_energetico_kcal} kcal</strong></li>` : ''}
           ${criarLinhaDetalhe('Carboidratos', produto.carboidratos_g && `${produto.carboidratos_g} g`, produto.vd_carboidratos)}
-          ${criarLinhaDetalhe('Proteinas', produto.proteinas_g && `${produto.proteinas_g} g`, produto.vd_proteinas)}
+          ${criarLinhaDetalhe('Proteínas', produto.proteinas_g && `${produto.proteinas_g} g`, produto.vd_proteinas)}
           ${criarLinhaDetalhe('Gorduras totais', produto.gorduras_totais_g && `${produto.gorduras_totais_g} g`, produto.vd_gorduras_totais)}
           ${criarLinhaDetalhe('Gorduras saturadas', produto.gorduras_saturadas_g && `${produto.gorduras_saturadas_g} g`, produto.vd_gorduras_saturadas)}
           ${produto.gorduras_trans_g ? `<li>Gorduras trans: <strong>${produto.gorduras_trans_g} g</strong></li>` : ''}
           ${criarLinhaDetalhe('Fibra alimentar', produto.fibra_g && `${produto.fibra_g} g`, produto.vd_fibra)}
-          ${criarLinhaDetalhe('Sodio', produto.sodio_mg && `${produto.sodio_mg} mg`, produto.vd_sodio)}
+          ${criarLinhaDetalhe('Sódio', produto.sodio_mg && `${produto.sodio_mg} mg`, produto.vd_sodio)}
+          ${criarLinhaDetalhe('Cálcio', produto.calcio_mg && `${produto.calcio_mg} mg`, produto.vd_calcio)}
         </ul>`,
       },
       {
-        titulo: 'Bloco 4 de 4: Ingredientes e alergenicos',
+        titulo: 'Bloco 4 de 4: Ingredientes e alergênicos',
         texto: produto.texto_bloco4,
         detalhesHtml: `
           ${produto.ingredientes ? `<p class="mb-2"><strong>Ingredientes:</strong> ${produto.ingredientes}</p>` : ''}
-          ${produto.alergenicos ? `<p><strong>Alergenicos:</strong> ${produto.alergenicos}</p>` : ''}
+          ${produto.alergenicos ? `<p class="mb-2"><strong>Alergênicos:</strong> ${produto.alergenicos}</p>` : ''}
+          ${produto.armazenamento ? `<p><strong>Modo de armazenamento:</strong> ${produto.armazenamento}</p>` : ''}
         `,
       },
     ];
@@ -133,7 +138,7 @@
   }
 
   function iniciar(produto) {
-    document.title = `${produto.nome} - Informacoes acessiveis do produto`;
+    document.title = `${produto.nome} - Informações acessíveis do produto`;
     document.getElementById('titulo-produto').textContent = produto.nome;
     document.getElementById('subtitulo-marca').textContent = `Marca: ${produto.marca}`;
     montarLupas(produto);
@@ -155,8 +160,8 @@
     let estaFalando = false;
     let estaPausado = false;
     let estaCarregando = false;
-    // 'cloud'  -> tocando audio com voz natural gerada em nuvem (Google TTS)
-    // 'browser'-> tocando com a sintese de voz do proprio navegador (fallback)
+    // 'cloud'  -> tocando áudio com voz natural gerada em nuvem (Google TTS)
+    // 'browser'-> tocando com a síntese de voz do próprio navegador (fallback)
     let modoAtivo = null;
 
     function mostrarAvisoAudio(texto) {
@@ -194,10 +199,10 @@
       }
     }
 
-    // Toca o audio com voz natural gerado em nuvem (Google Cloud TTS) para o
-    // bloco atual. Retorna false se o audio em nuvem nao estiver disponivel
-    // (nao configurado no servidor, sem internet, etc.), para permitir cair
-    // no fallback do navegador sem incomodar o usuario com um erro visivel.
+    // Toca o áudio com voz natural gerado em nuvem (Google Cloud TTS) para o
+    // bloco atual. Retorna false se o áudio em nuvem não estiver disponível
+    // (não configurado no servidor, sem internet, etc.), para permitir cair
+    // no fallback do navegador sem incomodar o usuário com um erro visível.
     async function tocarAudioNuvem() {
       try {
         const resposta = await fetch(`/api/produtos/${produto.id}/audio/${indiceAtual + 1}`);
@@ -232,8 +237,8 @@
       atualizarBotaoTocarPausar();
     });
 
-    // Em varios navegadores (sobretudo Chrome/Android) a lista de vozes carrega
-    // de forma assincrona: chamar speak() antes disso pode nao emitir som algum,
+    // Em vários navegadores (sobretudo Chrome/Android) a lista de vozes carrega
+    // de forma assíncrona: chamar speak() antes disso pode não emitir som algum,
     // sem gerar erro. Aguardamos "voiceschanged" (com um limite de tempo) antes
     // de falar pela primeira vez.
     function vozesProntas() {
@@ -247,7 +252,7 @@
 
     async function falarComVozDoNavegador() {
       if (!sintese) {
-        mostrarAvisoAudio('Este navegador nao oferece leitura em voz alta (nem em nuvem, nem local). Isso e comum ao abrir o link direto pelo aplicativo da camera ou por redes sociais. Tente abrir o link no navegador padrao do celular (Chrome ou Safari). O texto completo de cada bloco continua disponivel abaixo para leitura.');
+        mostrarAvisoAudio('Este navegador não oferece leitura em voz alta (nem em nuvem, nem local). Isso é comum ao abrir o link direto pelo aplicativo da câmera ou por redes sociais. Tente abrir o link no navegador padrão do celular (Chrome ou Safari). O texto completo de cada bloco continua disponível abaixo para leitura.');
         estaCarregando = false;
         atualizarBotaoTocarPausar();
         return;
@@ -262,7 +267,7 @@
       const vozPt = sintese.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith('pt'));
       if (vozPt) utterance.voice = vozPt;
       else if (sintese.getVoices().length === 0) {
-        mostrarAvisoAudio('Nenhuma voz de sintese foi encontrada neste dispositivo/navegador. Ative um mecanismo de sintese de voz nas configuracoes do celular ou abra este link em outro navegador para ouvir o audio.');
+        mostrarAvisoAudio('Nenhuma voz de síntese foi encontrada neste dispositivo/navegador. Ative um mecanismo de síntese de voz nas configurações do celular ou abra este link em outro navegador para ouvir o áudio.');
       }
       utterance.onstart = () => {
         estaCarregando = false;
@@ -280,7 +285,7 @@
         estaFalando = false;
         estaPausado = false;
         atualizarBotaoTocarPausar();
-        mostrarAvisoAudio('Nao foi possivel reproduzir o audio neste navegador. Tente abrir o link no navegador padrao do celular (Chrome ou Safari).');
+        mostrarAvisoAudio('Não foi possível reproduzir o áudio neste navegador. Tente abrir o link no navegador padrão do celular (Chrome ou Safari).');
       };
       sintese.speak(utterance);
     }

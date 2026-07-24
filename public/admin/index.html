@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Cadastro de Produtos - Rotulagem Acessivel</title>
+<title>Painel de Cadastro de Produtos - Rotulagem Acessível</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-900">
   <a href="#conteudo-principal" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-yellow-300 focus:px-4 focus:py-2 focus:rounded">
-    Pular para o conteudo principal
+    Pular para o conteúdo principal
   </a>
 
   <header class="bg-emerald-800 text-white">
     <div class="max-w-4xl mx-auto px-4 py-5">
-      <h1 class="text-2xl md:text-3xl font-bold">Cadastro de Produto Alimenticio</h1>
-      <p class="text-emerald-100 mt-1">Preencha os dados abaixo e gere o QR Code com a rotulagem acessivel do produto.</p>
+      <h1 class="text-2xl md:text-3xl font-bold">Cadastro de Produto Alimentício</h1>
+      <p class="text-emerald-100 mt-1">Preencha os dados abaixo e gere o QR Code com a rotulagem acessível do produto.</p>
     </div>
   </header>
 
@@ -24,9 +24,9 @@
 
     <form id="form-produto" class="space-y-8" novalidate>
 
-      <!-- BLOCO: Identificacao -->
+      <!-- BLOCO: Identificação -->
       <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
-        <legend class="text-lg font-bold px-2 text-emerald-800">1. Identificacao do produto</legend>
+        <legend class="text-lg font-bold px-2 text-emerald-800">1. Identificação do produto</legend>
         <div class="grid md:grid-cols-2 gap-4 mt-2">
           <div>
             <label for="nome" class="block font-medium mb-1">Nome do produto *</label>
@@ -43,15 +43,20 @@
             <input id="data_validade" name="data_validade" type="date"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
           </div>
+          <div>
+            <label for="lote" class="block font-medium mb-1">Lote</label>
+            <input id="lote" name="lote" type="text" placeholder="Ex: L12345"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
         </div>
       </fieldset>
 
-      <!-- BLOCO: Porcao -->
+      <!-- BLOCO: Porção -->
       <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
-        <legend class="text-lg font-bold px-2 text-emerald-800">2. Porcao e rendimento</legend>
+        <legend class="text-lg font-bold px-2 text-emerald-800">2. Porção e rendimento</legend>
         <div class="grid md:grid-cols-3 gap-4 mt-2">
           <div>
-            <label for="porcao_qtd" class="block font-medium mb-1">Tamanho da porcao (g/ml)</label>
+            <label for="porcao_qtd" class="block font-medium mb-1">Tamanho da porção (g/ml)</label>
             <input id="porcao_qtd" name="porcao_qtd" type="text" placeholder="Ex: 30 g"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
           </div>
@@ -61,7 +66,7 @@
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
           </div>
           <div>
-            <label for="porcoes_embalagem" class="block font-medium mb-1">Porcoes por embalagem</label>
+            <label for="porcoes_embalagem" class="block font-medium mb-1">Porções por embalagem</label>
             <input id="porcoes_embalagem" name="porcoes_embalagem" type="text" placeholder="Ex: 8"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
           </div>
@@ -75,7 +80,7 @@
         <div class="grid md:grid-cols-3 gap-4">
           <label class="flex items-center gap-3 border border-slate-300 rounded-lg px-3 py-3 cursor-pointer">
             <input type="checkbox" id="alerta_acucar" name="alerta_acucar" class="w-5 h-5">
-            <span>Alto em Acucar Adicionado</span>
+            <span>Alto em Açúcar Adicionado</span>
           </label>
           <label class="flex items-center gap-3 border border-slate-300 rounded-lg px-3 py-3 cursor-pointer">
             <input type="checkbox" id="alerta_gordura_saturada" name="alerta_gordura_saturada" class="w-5 h-5">
@@ -83,30 +88,25 @@
           </label>
           <label class="flex items-center gap-3 border border-slate-300 rounded-lg px-3 py-3 cursor-pointer">
             <input type="checkbox" id="alerta_sodio" name="alerta_sodio" class="w-5 h-5">
-            <span>Alto em Sodio</span>
+            <span>Alto em Sódio</span>
           </label>
         </div>
       </fieldset>
 
       <!-- BLOCO: Tabela nutricional -->
       <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
-        <legend class="text-lg font-bold px-2 text-emerald-800">4. Tabela nutricional (por porcao)</legend>
+        <legend class="text-lg font-bold px-2 text-emerald-800">4. Tabela nutricional (por porção)</legend>
         <div class="grid md:grid-cols-2 gap-4 mt-2">
           <div>
-            <label for="valor_energetico_kcal" class="block font-medium mb-1">Valor energetico (kcal)</label>
+            <label for="valor_energetico_kcal" class="block font-medium mb-1">Valor energético (kcal)</label>
             <input id="valor_energetico_kcal" name="valor_energetico_kcal" type="text"
-              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
-          </div>
-          <div>
-            <label for="valor_energetico_kj" class="block font-medium mb-1">Valor energetico (kJ)</label>
-            <input id="valor_energetico_kj" name="valor_energetico_kj" type="text"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
           </div>
         </div>
 
         <div class="overflow-x-auto mt-4">
           <table class="w-full text-left border-collapse">
-            <caption class="text-sm text-slate-600 mb-2 text-left">Nutriente, quantidade e %VD (valor diario)</caption>
+            <caption class="text-sm text-slate-600 mb-2 text-left">Nutriente, quantidade e %VD (valor diário)</caption>
             <thead>
               <tr class="border-b border-slate-300">
                 <th scope="col" class="py-2 pr-2">Nutriente</th>
@@ -121,29 +121,34 @@
 
       <!-- BLOCO: Ingredientes -->
       <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
-        <legend class="text-lg font-bold px-2 text-emerald-800">5. Ingredientes e alergenicos</legend>
+        <legend class="text-lg font-bold px-2 text-emerald-800">5. Ingredientes e alergênicos</legend>
         <div class="space-y-4 mt-2">
           <div>
             <label for="ingredientes" class="block font-medium mb-1">Lista de ingredientes (ordem decrescente)</label>
-            <textarea id="ingredientes" name="ingredientes" rows="3" placeholder="Ex: acucar, farinha de trigo, oleo vegetal, sal, ..."
+            <textarea id="ingredientes" name="ingredientes" rows="3" placeholder="Ex: açúcar, farinha de trigo, óleo vegetal, sal, ..."
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
           <div>
-            <label for="alergenicos" class="block font-medium mb-1">Alergenicos</label>
-            <input id="alergenicos" name="alergenicos" type="text" placeholder="Ex: gluten, leite, soja"
+            <label for="alergenicos" class="block font-medium mb-1">Alergênicos</label>
+            <input id="alergenicos" name="alergenicos" type="text" placeholder="Ex: glúten, leite, soja"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="armazenamento" class="block font-medium mb-1">Modo de armazenamento</label>
+            <textarea id="armazenamento" name="armazenamento" rows="2" placeholder="Ex: Conservar em local seco e arejado, ao abrigo da luz solar."
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
         </div>
       </fieldset>
 
       <!-- BLOCO: Textos narrativos -->
       <fieldset class="bg-white rounded-xl shadow p-6 border border-slate-200">
-        <legend class="text-lg font-bold px-2 text-emerald-800">6. Textos explicativos (audio da pagina publica)</legend>
+        <legend class="text-lg font-bold px-2 text-emerald-800">6. Textos explicativos (áudio da página pública)</legend>
         <div class="flex items-center justify-between mt-1 mb-3 flex-wrap gap-2">
-          <p class="text-sm text-slate-600">Gere sugestoes automaticas em linguagem simples e edite se necessario.</p>
+          <p class="text-sm text-slate-600">Gere sugestões automáticas em linguagem simples e edite se necessário.</p>
           <button type="button" id="btn-gerar-textos"
             class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-4 py-2 rounded-lg focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700">
-            Gerar textos automaticos
+            Gerar textos automáticos
           </button>
         </div>
 
@@ -154,7 +159,7 @@
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
           <div>
-            <label for="texto_bloco2" class="block font-medium mb-1">Bloco 2 - Porcao e rendimento</label>
+            <label for="texto_bloco2" class="block font-medium mb-1">Bloco 2 - Porção e rendimento</label>
             <textarea id="texto_bloco2" name="texto_bloco2" rows="3"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
@@ -164,7 +169,7 @@
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
           <div>
-            <label for="texto_bloco4" class="block font-medium mb-1">Bloco 4 - Ingredientes e alergenicos</label>
+            <label for="texto_bloco4" class="block font-medium mb-1">Bloco 4 - Ingredientes e alergênicos</label>
             <textarea id="texto_bloco4" name="texto_bloco4" rows="3"
               class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
@@ -172,13 +177,13 @@
       </fieldset>
 
       <div id="aviso-edicao" class="hidden bg-amber-100 text-amber-800 font-medium rounded-lg p-3" role="status" aria-live="polite">
-        Editando produto cadastrado. As alteracoes so serao salvas ao clicar em "Atualizar produto".
+        Editando produto cadastrado. As alterações só serão salvas ao clicar em "Atualizar produto".
       </div>
 
       <div class="flex justify-end gap-3">
         <button type="button" id="btn-cancelar-edicao"
           class="hidden bg-white border-2 border-slate-400 text-slate-700 font-bold px-6 py-3 rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
-          Cancelar edicao
+          Cancelar edição
         </button>
         <button type="submit" id="btn-salvar"
           class="bg-emerald-800 hover:bg-emerald-900 text-white text-lg font-bold px-6 py-3 rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-emerald-800">
@@ -190,7 +195,7 @@
     <!-- Resultado / QR Code -->
     <section id="secao-resultado" class="hidden bg-white rounded-xl shadow p-6 border border-emerald-300" aria-labelledby="titulo-resultado">
       <h2 id="titulo-resultado" class="text-xl font-bold text-emerald-800 mb-3">Produto cadastrado com sucesso</h2>
-      <p class="mb-1">Link publico: <a id="link-publico" class="text-emerald-700 underline break-all" target="_blank" rel="noopener"></a></p>
+      <p class="mb-1">Link público: <a id="link-publico" class="text-emerald-700 underline break-all" target="_blank" rel="noopener"></a></p>
       <div class="flex flex-col items-center gap-4 mt-4">
         <img id="img-qrcode" alt="QR Code do produto cadastrado" class="w-64 h-64 border border-slate-300 rounded-lg">
         <a id="link-download" download="qrcode-produto.png"
