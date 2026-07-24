@@ -13,7 +13,6 @@ O objetivo principal do projeto é **promover a inclusão de pessoas com defici�
 
 - **QR Codes** impressos nas embalagens
 - **Audição** (áudio descrição em português com voz natural)
-- Futuramente: integração com **Sistema Braille**
 
 ---
 
